@@ -1,0 +1,5 @@
+before=2026-09-27T15:40:14.611Z
+after=2026-09-27T15:40:34.751Z
+server_changed=true
+tool_surface_changed=true
+claude/direct/1: PASS -> FAIL

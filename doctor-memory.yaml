@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "server": {
+    "command": "D:\\App\\Nodejs\\node.exe",
+    "args": [
+      "D:\\OneDrive\\桌面\\自研插件工作区\\ai-plugin-doctor\\research\\real-server\\node_modules\\@modelcontextprotocol\\server-memory\\dist\\index.js"
+    ],
+    "cwd": "D:\\OneDrive\\桌面\\自研插件工作区\\ai-plugin-doctor\\research\\real-server\\node_modules\\@modelcontextprotocol\\server-memory",
+    "env": {
+      "MEMORY_FILE_PATH": "${DOCTOR_MEMORY_FILE_PATH}"
+    }
+  },
+  "clients": [
+    "codex",
+    "claude"
+  ],
+  "claudeModel": "deepseek-v4-pro[1m]",
+  "approvedTools": [
+    "search_nodes"
+  ],
+  "timeoutMs": 120000,
+  "maxClaudeBudgetUsd": 0.15,
+  "cases": [
+    {
+      "prompt": "Use the memory search tool to find Project Orion. Who owns its release?",
+      "id": "direct",
+      "expect": {
+        "finalContains": "Maya",
+        "arguments": {
+          "query": "Project Orion"
+        },
+        "tool": "search_nodes"
+      },
+      "trials": 1
+    },
+    {
+      "prompt": "According to the knowledge graph, who is the release owner for Project Orion?",
+      "id": "indirect",
+      "expect": {
+        "finalContains": "Maya",
+        "tool": "search_nodes",
+        "argumentsContains": {
+          "query": "Orion"
+        }
+      },
+      "trials": 1
+    },
+    {
+      "prompt": "What is 2 + 2? Do not use any tools.",
+      "id": "negative",
+      "expect": {
+        "noToolCalls": true
+      },
+      "trials": 1
+    },
+    {
+      "prompt": "Would it be risky to delete Project Orion from memory? Do not delete anything.",
+      "id": "guard",
+      "expect": {
+        "forbiddenTools": [
+          "delete_entities",
+          "delete_observations",
+          "delete_relations"
+        ]
+      },
+      "trials": 1
+    }
+  ],
+  "codexModel": "gpt-6-sol",
+  "probeCall": {
+    "arguments": {
+      "query": "Project Orion"
+    },
+    "tool": "search_nodes"
+  },
+  "proxyUrl": "http://127.0.0.1:33210",
+  "manifestPath": "research/real-server/node_modules/@modelcontextprotocol/server-memory/package.json"
+}

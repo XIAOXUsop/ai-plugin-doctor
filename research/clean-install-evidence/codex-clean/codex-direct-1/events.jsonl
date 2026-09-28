@@ -1,0 +1,6 @@
+{"type":"client_init","source":"wire.jsonl","sourceIndex":1,"at":"2026-09-28T03:45:09.260Z"}
+{"type":"server_discovered","source":"wire.jsonl","sourceIndex":4,"at":"2026-09-28T03:45:09.270Z"}
+{"type":"tool_called","source":"wire.jsonl","sourceIndex":5,"at":"2026-09-28T03:45:25.393Z","tool":"lookup_release","arguments":{"releaseId":"REL-42"}}
+{"type":"tool_result","source":"wire.jsonl","sourceIndex":6,"at":"2026-09-28T03:45:25.397Z","tool":"lookup_release","isError":false}
+{"type":"tool_selected","source":"client.stdout.jsonl","sourceIndex":3,"tool":"lookup_release","arguments":{"releaseId":"REL-42"}}
+{"type":"final_answer","source":"client.stdout.jsonl","text":"REL-42 is **ready**. Its run ID is `4d3d4039-79a3-497a-8dc6-6f115bbfd734`."}

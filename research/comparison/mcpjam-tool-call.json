@@ -1,0 +1,549 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-27T15:38:24.466Z",
+  "command": {
+    "name": "tools call",
+    "input": {
+      "toolName": "lookup_release",
+      "params": {
+        "releaseId": "REL-42"
+      }
+    }
+  },
+  "target": {
+    "kind": "stdio",
+    "label": "D:\\App\\Nodejs\\node.exe",
+    "command": "D:\\App\\Nodejs\\node.exe",
+    "commandArgs": [
+      "D:\\OneDrive\\桌面\\自研插件工作区\\ai-plugin-doctor\\dist\\fixtures\\release-server.js"
+    ],
+    "envKeys": [],
+    "headerNames": [],
+    "timeoutMs": 30000,
+    "hasAccessToken": false,
+    "hasRefreshToken": false,
+    "hasClientSecret": false
+  },
+  "outcome": {
+    "status": "success",
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"runId\":\"manual\",\"releaseId\":\"REL-42\",\"status\":\"ready\",\"fictional\":true}"
+        }
+      ],
+      "_durationMs": 4
+    }
+  },
+  "snapshot": {
+    "target": {
+      "kind": "stdio",
+      "label": "D:\\App\\Nodejs\\node.exe",
+      "command": "D:\\App\\Nodejs\\node.exe",
+      "commandArgs": [
+        "D:\\OneDrive\\桌面\\自研插件工作区\\ai-plugin-doctor\\dist\\fixtures\\release-server.js"
+      ],
+      "envKeys": [],
+      "headerNames": [],
+      "timeoutMs": 30000,
+      "hasAccessToken": false,
+      "hasRefreshToken": false,
+      "hasClientSecret": false
+    },
+    "generatedAt": "2026-09-27T15:38:24.229Z",
+    "status": "ready",
+    "probe": null,
+    "connection": {
+      "status": "connected",
+      "detail": "Connected and initialized successfully."
+    },
+    "initInfo": {
+      "protocolVersion": "2025-11-25",
+      "transport": "stdio",
+      "serverCapabilities": {
+        "tools": {
+          "listChanged": true
+        }
+      },
+      "serverVersion": {
+        "name": "doctor-release-fixture",
+        "version": "0.1.0"
+      },
+      "clientCapabilities": {
+        "extensions": {
+          "io.modelcontextprotocol/ui": {
+            "mimeTypes": [
+              "text/html;profile=mcp-app"
+            ]
+          },
+          "io.modelcontextprotocol/skills": {}
+        }
+      }
+    },
+    "capabilities": {
+      "tools": {
+        "listChanged": true
+      }
+    },
+    "tools": [
+      {
+        "name": "lookup_release",
+        "description": "Look up a fictitious release by ID. Returns only test data.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "releaseId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "releaseId"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      },
+      {
+        "name": "delete_release",
+        "description": "Simulate deletion of a fictitious release. Never deletes external data.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "releaseId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "releaseId"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "execution": {
+          "taskSupport": "forbidden"
+        }
+      }
+    ],
+    "toolsMetadata": {},
+    "resources": [],
+    "resourceTemplates": [],
+    "prompts": [],
+    "skills": [],
+    "checks": {
+      "probe": {
+        "status": "skipped",
+        "detail": "HTTP probe not applicable for stdio targets."
+      },
+      "connection": {
+        "status": "ok",
+        "detail": "Connected and initialized successfully."
+      },
+      "initialization": {
+        "status": "ok",
+        "detail": "Initialization info captured."
+      },
+      "capabilities": {
+        "status": "ok",
+        "detail": "Server capabilities captured."
+      },
+      "tools": {
+        "status": "ok",
+        "detail": "2 tools discovered."
+      },
+      "resources": {
+        "status": "ok",
+        "detail": "0 resources discovered."
+      },
+      "resourceTemplates": {
+        "status": "ok",
+        "detail": "0 resource templates discovered."
+      },
+      "prompts": {
+        "status": "ok",
+        "detail": "0 prompts discovered."
+      },
+      "skills": {
+        "status": "skipped",
+        "detail": "The server does not declare the Skills over MCP extension (`io.modelcontextprotocol/skills`)."
+      }
+    },
+    "error": null
+  },
+  "_rpcLogs": [
+    {
+      "serverId": "__cli__",
+      "serverName": "D:\\App\\Nodejs\\node.exe",
+      "direction": "send",
+      "timestamp": "2026-09-27T15:38:23.962Z",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": "server-discover-probe-1",
+        "method": "server/discover",
+        "params": {
+          "_meta": {
+            "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+            "io.modelcontextprotocol/clientInfo": {
+              "name": "claude-ai",
+              "version": "0.1.0"
+            },
+            "io.modelcontextprotocol/clientCapabilities": {
+              "extensions": {
+                "io.modelcontextprotocol/ui": {
+                  "mimeTypes": [
+                    "text/html;profile=mcp-app"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "serverId": "__cli__",
+      "serverName": "D:\\App\\Nodejs\\node.exe",
+      "direction": "receive",
+      "timestamp": "2026-09-27T15:38:24.197Z",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": "server-discover-probe-1",
+        "error": {
+          "code": -32601,
+          "message": "Method not found"
+        }
+      }
+    },
+    {
+      "serverId": "__cli__",
+      "serverName": "D:\\App\\Nodejs\\node.exe",
+      "direction": "send",
+      "timestamp": "2026-09-27T15:38:24.202Z",
+      "message": {
+        "method": "initialize",
+        "params": {
+          "protocolVersion": "2025-11-25",
+          "capabilities": {
+            "extensions": {
+              "io.modelcontextprotocol/ui": {
+                "mimeTypes": [
+                  "text/html;profile=mcp-app"
+                ]
+              }
+            }
+          },
+          "clientInfo": {
+            "name": "claude-ai",
+            "version": "0.1.0"
+          }
+        },
+        "jsonrpc": "2.0",
+        "id": 0
+      }
+    },
+    {
+      "serverId": "__cli__",
+      "serverName": "D:\\App\\Nodejs\\node.exe",
+      "direction": "receive",
+      "timestamp": "2026-09-27T15:38:24.205Z",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 0,
+        "result": {
+          "protocolVersion": "2025-11-25",
+          "capabilities": {
+            "tools": {
+              "listChanged": true
+            }
+          },
+          "serverInfo": {
+            "name": "doctor-release-fixture",
+            "version": "0.1.0"
+          }
+        }
+      }
+    },
+    {
+      "serverId": "__cli__",
+      "serverName": "D:\\App\\Nodejs\\node.exe",
+      "direction": "send",
+      "timestamp": "2026-09-27T15:38:24.207Z",
+      "message": {
+        "jsonrpc": "2.0",
+        "method": "notifications/initialized"
+      }
+    },
+    {
+      "serverId": "__cli__",
+      "serverName": "D:\\App\\Nodejs\\node.exe",
+      "direction": "send",
+      "timestamp": "2026-09-27T15:38:24.208Z",
+      "message": {
+        "method": "tools/list",
+        "jsonrpc": "2.0",
+        "id": 1
+      }
+    },
+    {
+      "serverId": "__cli__",
+      "serverName": "D:\\App\\Nodejs\\node.exe",
+      "direction": "receive",
+      "timestamp": "2026-09-27T15:38:24.211Z",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "tools": [
+            {
+              "name": "lookup_release",
+              "description": "Look up a fictitious release by ID. Returns only test data.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "releaseId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "releaseId"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              },
+              "execution": {
+                "taskSupport": "forbidden"
+              }
+            },
+            {
+              "name": "delete_release",
+              "description": "Simulate deletion of a fictitious release. Never deletes external data.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "releaseId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "releaseId"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              },
+              "execution": {
+                "taskSupport": "forbidden"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "serverId": "__cli__",
+      "serverName": "D:\\App\\Nodejs\\node.exe",
+      "direction": "send",
+      "timestamp": "2026-09-27T15:38:24.214Z",
+      "message": {
+        "method": "tools/call",
+        "params": {
+          "name": "lookup_release",
+          "arguments": {
+            "releaseId": "REL-42"
+          }
+        },
+        "jsonrpc": "2.0",
+        "id": 2
+      }
+    },
+    {
+      "serverId": "__cli__",
+      "serverName": "D:\\App\\Nodejs\\node.exe",
+      "direction": "receive",
+      "timestamp": "2026-09-27T15:38:24.216Z",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"runId\":\"manual\",\"releaseId\":\"REL-42\",\"status\":\"ready\",\"fictional\":true}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "serverId": "__cli__",
+      "serverName": "D:\\App\\Nodejs\\node.exe",
+      "direction": "send",
+      "timestamp": "2026-09-27T15:38:24.233Z",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": "server-discover-probe-1",
+        "method": "server/discover",
+        "params": {
+          "_meta": {
+            "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+            "io.modelcontextprotocol/clientInfo": {
+              "name": "mcpjam",
+              "version": "1.0.0"
+            },
+            "io.modelcontextprotocol/clientCapabilities": {
+              "extensions": {
+                "io.modelcontextprotocol/ui": {
+                  "mimeTypes": [
+                    "text/html;profile=mcp-app"
+                  ]
+                },
+                "io.modelcontextprotocol/skills": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "serverId": "__cli__",
+      "serverName": "D:\\App\\Nodejs\\node.exe",
+      "direction": "receive",
+      "timestamp": "2026-09-27T15:38:24.446Z",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": "server-discover-probe-1",
+        "error": {
+          "code": -32601,
+          "message": "Method not found"
+        }
+      }
+    },
+    {
+      "serverId": "__cli__",
+      "serverName": "D:\\App\\Nodejs\\node.exe",
+      "direction": "send",
+      "timestamp": "2026-09-27T15:38:24.447Z",
+      "message": {
+        "method": "initialize",
+        "params": {
+          "protocolVersion": "2025-11-25",
+          "capabilities": {
+            "extensions": {
+              "io.modelcontextprotocol/ui": {
+                "mimeTypes": [
+                  "text/html;profile=mcp-app"
+                ]
+              },
+              "io.modelcontextprotocol/skills": {}
+            }
+          },
+          "clientInfo": {
+            "name": "mcpjam",
+            "version": "1.0.0"
+          }
+        },
+        "jsonrpc": "2.0",
+        "id": 0
+      }
+    },
+    {
+      "serverId": "__cli__",
+      "serverName": "D:\\App\\Nodejs\\node.exe",
+      "direction": "receive",
+      "timestamp": "2026-09-27T15:38:24.450Z",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 0,
+        "result": {
+          "protocolVersion": "2025-11-25",
+          "capabilities": {
+            "tools": {
+              "listChanged": true
+            }
+          },
+          "serverInfo": {
+            "name": "doctor-release-fixture",
+            "version": "0.1.0"
+          }
+        }
+      }
+    },
+    {
+      "serverId": "__cli__",
+      "serverName": "D:\\App\\Nodejs\\node.exe",
+      "direction": "send",
+      "timestamp": "2026-09-27T15:38:24.450Z",
+      "message": {
+        "jsonrpc": "2.0",
+        "method": "notifications/initialized"
+      }
+    },
+    {
+      "serverId": "__cli__",
+      "serverName": "D:\\App\\Nodejs\\node.exe",
+      "direction": "send",
+      "timestamp": "2026-09-27T15:38:24.452Z",
+      "message": {
+        "method": "tools/list",
+        "jsonrpc": "2.0",
+        "id": 1
+      }
+    },
+    {
+      "serverId": "__cli__",
+      "serverName": "D:\\App\\Nodejs\\node.exe",
+      "direction": "receive",
+      "timestamp": "2026-09-27T15:38:24.455Z",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "tools": [
+            {
+              "name": "lookup_release",
+              "description": "Look up a fictitious release by ID. Returns only test data.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "releaseId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "releaseId"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              },
+              "execution": {
+                "taskSupport": "forbidden"
+              }
+            },
+            {
+              "name": "delete_release",
+              "description": "Simulate deletion of a fictitious release. Never deletes external data.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "releaseId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "releaseId"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+              },
+              "execution": {
+                "taskSupport": "forbidden"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

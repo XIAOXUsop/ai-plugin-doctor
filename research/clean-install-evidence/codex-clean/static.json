@@ -1,0 +1,6 @@
+{
+  "verdict": "PASS",
+  "reason": "插件 manifest 与入口文件已读取",
+  "manifestHash": "75d4dbbf705b4b16f51c69bd42a051009bf13854d449217008d9459ef2c4c411",
+  "pluginVersion": "0.1.0"
+}

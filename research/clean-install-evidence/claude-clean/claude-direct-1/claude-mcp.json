@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "doctor": {
+      "command": "D:\\App\\Nodejs\\node.exe",
+      "args": [
+        "D:\\OneDrive\\桌面\\自研插件工作区\\ai-plugin-doctor\\research\\clean-install-final\\dist\\src\\stdio-proxy.js",
+        "D:\\OneDrive\\桌面\\自研插件工作区\\ai-plugin-doctor\\research\\clean-install-final\\runs\\claude-clean\\claude-direct-1\\proxy-spec.json"
+      ]
+    }
+  }
+}

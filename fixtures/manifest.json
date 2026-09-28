@@ -1,0 +1,5 @@
+{
+  "name": "doctor-release-fixture",
+  "version": "0.1.0",
+  "serverEntry": "../dist/fixtures/release-server.js"
+}

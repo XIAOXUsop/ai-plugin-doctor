@@ -1,0 +1,6 @@
+node_modules/
+dist/
+runs/
+.npm-cache/
+*.log
+!research/clean-install-evidence/**/client.stderr.log

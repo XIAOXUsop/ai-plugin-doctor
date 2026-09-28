@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "manifestPath": "D:\\OneDrive\\桌面\\自研插件工作区\\ai-plugin-doctor\\research\\clean-install-final\\fixtures\\manifest.json",
+  "server": {
+    "command": "D:\\App\\Nodejs\\node.exe",
+    "args": [
+      "D:\\OneDrive\\桌面\\自研插件工作区\\ai-plugin-doctor\\research\\clean-install-final\\dist\\fixtures\\release-server.js"
+    ],
+    "cwd": "."
+  },
+  "clients": [
+    "codex",
+    "claude"
+  ],
+  "timeoutMs": 120000,
+  "maxClaudeBudgetUsd": 0.15,
+  "codexModel": "gpt-6-sol",
+  "claudeModel": "deepseek-v4-pro[1m]",
+  "proxyUrl": "http://127.0.0.1:33210",
+  "approvedTools": [
+    "lookup_release"
+  ],
+  "probeCall": {
+    "tool": "lookup_release",
+    "arguments": {
+      "releaseId": "REL-42"
+    }
+  },
+  "cases": [
+    {
+      "id": "direct",
+      "prompt": "Use the release tool to look up the fictional release REL-42 and state its status and run ID.",
+      "expect": {
+        "tool": "lookup_release",
+        "arguments": {
+          "releaseId": "REL-42"
+        },
+        "finalContains": "ready"
+      },
+      "trials": 1
+    }
+  ]
+}

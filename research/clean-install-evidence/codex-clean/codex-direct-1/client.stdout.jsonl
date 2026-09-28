@@ -1,0 +1,7 @@
+{"type":"thread.started","thread_id":"01a0e61d-d140-7b21-9be4-0732717a72e3"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"I’ll look up REL-42 with the release tool and report its status and run ID."}}
+{"type":"item.started","item":{"id":"item_1","type":"mcp_tool_call","server":"doctor","tool":"lookup_release","arguments":{"releaseId":"REL-42"},"result":null,"error":null,"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_1","type":"mcp_tool_call","server":"doctor","tool":"lookup_release","arguments":{"releaseId":"REL-42"},"result":{"content":[{"type":"text","text":"{\"runId\":\"4d3d4039-79a3-497a-8dc6-6f115bbfd734\",\"releaseId\":\"REL-42\",\"status\":\"ready\",\"fictional\":true}"}],"structured_content":null},"error":null,"status":"completed"}}
+{"type":"item.completed","item":{"id":"item_2","type":"agent_message","text":"REL-42 is **ready**. Its run ID is `4d3d4039-79a3-497a-8dc6-6f115bbfd734`."}}
+{"type":"turn.completed","usage":{"input_tokens":38977,"cached_input_tokens":25472,"cache_write_input_tokens":0,"output_tokens":145,"reasoning_output_tokens":8}}

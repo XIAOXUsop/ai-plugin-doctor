@@ -23,6 +23,8 @@ export function confirmMapping(report:ScanReport,ids:string[]):string {
   if(members.length<2||members.length>4||new Set(members.map(item=>item.client)).size!==members.length)throw new Error("映射需选择两个至四个不同客户端的服务");
   const current=readMapping(report.context.workspace);if(current.version.contentHash!==report.mapping?.contentHash)throw new Error("映射已变化，请重新扫描");
   const previous=current.mapping?.groups??[];
+  if(previous.length>=100)throw new Error("服务映射最多支持 100 组；请先审阅现有映射");
+  if(members.some(member=>member.name.length>128))throw new Error("服务映射名称不能超过 128 个字符");
   if(previous.some(group=>group.members.some(item=>members.some(member=>member.client===item.client&&member.name===item.name))))throw new Error("服务已有映射，拒绝隐式覆盖；先审阅映射文件");
   const id=hash(JSON.stringify(members)).slice(0,16),data={schemaVersion:1,workspace:report.context.workspace,groups:[...previous,{id,members}]};
   if(!ordinaryPath(current.version.path))throw new Error("映射路径不安全");

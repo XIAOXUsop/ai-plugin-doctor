@@ -239,6 +239,13 @@ test("confirmed different-name mapping persists, appends and invalidates old pla
  confirmMapping(first,first.servers.filter(x=>["second","other"].includes(x.name)).map(x=>x.id));assert.equal(f.read().comparisons.filter(x=>x.relation==="confirmed").length,2);
  assert.throws(()=>confirmMapping(f.read(),ids),/已有映射/);
 });
+test("mapping limits reject additions without corrupting the existing readable mapping",t=>{
+ const f=fixture(t);f.put("home/.claude.json",{mcpServers:{newA:f.service}});f.put("home/.cursor/mcp.json",{mcpServers:{newB:f.service}});
+ const path=f.put("workspace/.doctor/service-map.json",{schemaVersion:1,workspace:f.workspace,groups:Array.from({length:100},(_,i)=>({id:i.toString(16).padStart(16,"0"),members:[{client:"claude",name:`oldA${i}`},{client:"cursor",name:`oldB${i}`}]}))});
+ const before=readFileSync(path),report=f.read();assert.throws(()=>confirmMapping(report,report.servers.map(x=>x.id)),/100/);assert.deepEqual(readFileSync(path),before);assert.equal(f.read().mapping?.state,"readable");
+ f.put("workspace/.doctor/service-map.json",{schemaVersion:1,workspace:f.workspace,groups:[]});
+ const longName="a".repeat(129);f.put("home/.claude.json",{mcpServers:{[longName]:f.service}});const fresh=f.read(),unchanged=readFileSync(path);assert.throws(()=>confirmMapping(fresh,fresh.servers.map(x=>x.id)),/128/);assert.deepEqual(readFileSync(path),unchanged);assert.equal(f.read().mapping?.state,"readable");
+});
 test("same-name candidates block repair until the user confirms identity",t=>{
  const f=fixture(t);f.put("home/.claude.json",{mcpServers:{demo:{command:"missing"}}});f.put("home/.cursor/mcp.json",{mcpServers:{demo:f.service}});
  const r=f.read(),finding=r.findings.find(x=>x.code==="COMMAND_NOT_FOUND")!;assert.equal(r.comparisons[0]?.relation,"candidate");assert.equal(makePlan(r,[finding.id],process.execPath).edits.length,0);

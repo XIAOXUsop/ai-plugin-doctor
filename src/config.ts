@@ -3,6 +3,7 @@ import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { DoctorConfig, ServerConfig } from "./types.js";
+import { importServer, inspectImportSource } from "./import-source.js";
 
 export function hash(value: string | Buffer): string { return createHash("sha256").update(value).digest("hex"); }
 export function validateProxyUrl(value: string): void {
@@ -45,15 +46,15 @@ export function loadConfig(path: string): DoctorConfig {
 export function resolveServer(config: DoctorConfig, configPath: string): ServerConfig {
   const base = dirname(resolve(configPath));
   const cwd = resolve(base, config.server.cwd ?? ".");
-  const args = config.server.args.map(x => x.startsWith("./") || x.startsWith(".\\") ? resolve(cwd, x) : x);
-  const command = config.server.command.startsWith("./") || config.server.command.startsWith(".\\") ? resolve(cwd, config.server.command) : config.server.command;
+  const args = [...config.server.args];
+  const command = !isAbsolute(config.server.command) && /[\\/]/.test(config.server.command) ? resolve(cwd, config.server.command) : config.server.command;
   return { ...config.server, command, args, cwd };
 }
 
 export function serverHash(server: ServerConfig): string {
-  const files = [server.command, ...server.args].filter(x => isAbsolute(x) && existsSync(x));
+  const files = [server.command, ...server.args].map(x => isAbsolute(x) ? x : resolve(server.cwd ?? process.cwd(), x)).filter(x => existsSync(x) && statSync(x).isFile());
   const fileHashes = files.map(x => ({ path: x, sha256: hash(readFileSync(x)) }));
-  return hash(JSON.stringify({ command: server.command, args: server.args, fileHashes }));
+  return hash(JSON.stringify({ command: server.command, args: server.args, cwd: server.cwd, env: server.env, fileHashes }));
 }
 
 export function expandEnvReferences(values: Record<string, string> | undefined): Record<string, string> {
@@ -98,40 +99,18 @@ export function createExample(path: string, proxyUrl?: string, codexModel?: stri
   writeFileSync(path, JSON.stringify(example, null, 2) + "\n");
 }
 
-export function createFromSource(sourcePath: string, outputPath: string, serverName?: string, proxyUrl?: string, codexModel?: string, claudeModel?: string): void {
+export function createFromSource(sourcePath: string, outputPath: string, serverName?: string, proxyUrl?: string, codexModel?: string, claudeModel?: string, options: {cwd?: string; entry?: string} = {}): {source: string; selected: string; cwd: string; argumentCount: number; requiredEnvironment: string[]; notes: string[]} {
   if (proxyUrl) validateProxyUrl(proxyUrl);
   if (codexModel !== undefined && (!codexModel.trim() || codexModel.length > 200)) throw new Error("codexModel must be a nonempty model id");
   if (claudeModel !== undefined && (!claudeModel.trim() || claudeModel.length > 200)) throw new Error("claudeModel must be a nonempty model id");
-  const source = resolve(sourcePath);
-  const isDirectory = statSync(source).isDirectory();
-  const configFile = isDirectory ? [".mcp.json", "mcp.json", "claude_desktop_config.json"].map(name => join(source, name)).find(existsSync) : source;
-  let server: ServerConfig;
-  if (configFile) {
-    const value = JSON.parse(readFileSync(configFile, "utf8")) as Record<string, unknown>;
-    const entries = (value.mcpServers ?? value.servers) as Record<string, unknown> | undefined;
-    if (!entries || typeof entries !== "object") throw new Error("MCP config must contain mcpServers or servers");
-    const names = Object.keys(entries);
-    const name = serverName ?? (names.length === 1 ? names[0] : undefined);
-    if (!name || !entries[name]) throw new Error(`Select one MCP server with --server; available: ${names.join(", ")}`);
-    const candidate = entries[name] as Partial<ServerConfig>;
-    if (typeof candidate.command !== "string" || !Array.isArray(candidate.args) || !candidate.args.every(x => typeof x === "string")) throw new Error("Selected server must have a stdio command and args");
-    server = { command: candidate.command, args: candidate.args, cwd: candidate.cwd ? resolve(dirname(configFile), candidate.cwd) : dirname(configFile) };
-    if (candidate.env) {
-      if (typeof candidate.env !== "object" || Array.isArray(candidate.env)) throw new Error("Selected server env must be an object");
-      server.env = Object.fromEntries(Object.keys(candidate.env).map(key => [key, `\${${key}}`]));
-    }
-  } else {
-    const packageFile = join(source, "package.json");
-    if (!existsSync(packageFile)) throw new Error("Plugin directory needs .mcp.json, mcp.json, or package.json");
-    const pkg = JSON.parse(readFileSync(packageFile, "utf8")) as Record<string, unknown>;
-    const bin = typeof pkg.bin === "string" ? pkg.bin : pkg.bin && typeof pkg.bin === "object" ? Object.values(pkg.bin)[0] : undefined;
-    const entry = typeof bin === "string" ? bin : typeof pkg.main === "string" ? pkg.main : undefined;
-    if (!entry || !existsSync(resolve(source, entry))) throw new Error("Plugin package has no built local bin/main entry; build it first or provide an MCP config");
-    server = { command: process.execPath, args: [resolve(source, entry)], cwd: source };
-  }
+  const source = inspectImportSource(sourcePath);
+  if (source.kind === "package" && serverName !== undefined) throw new Error("package.json 入口请使用 --entry，不使用 --server");
+  if (source.kind === "mcp" && options.entry !== undefined) throw new Error("MCP 服务请使用 --server，不使用 --entry");
+  const imported = importServer(source, source.kind === "package" ? options.entry : serverName, options.cwd);
+  const server = imported.server;
   const generated: DoctorConfig = {
     schemaVersion: 1,
-    manifestPath: configFile ?? join(source, "package.json"),
+    manifestPath: source.file,
     server,
     clients: ["codex", "claude"],
     approvedTools: [],
@@ -144,4 +123,5 @@ export function createFromSource(sourcePath: string, outputPath: string, serverN
   };
   if (existsSync(outputPath)) throw new Error(`Refusing to overwrite ${outputPath}`);
   writeFileSync(outputPath, JSON.stringify(generated, null, 2) + "\n");
+  return {source: source.file, selected: imported.selected, cwd: server.cwd!, argumentCount: server.args.length, requiredEnvironment: [...new Set(Object.values(server.env ?? {}).map(value => value.slice(2,-1)))], notes: imported.notes};
 }

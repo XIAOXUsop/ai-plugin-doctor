@@ -7,7 +7,9 @@ import { normalizeEvents } from "./events.js";
 import { redact } from "./redact.js";
 import { findClaudeJs, findExecutable, runProcess, version } from "./process.js";
 import { probe } from "./probe.js";
-import { writeReport } from "./report.js";
+import { captureRunEvidence, writeReport } from "./report.js";
+import { parseImportDocument } from "./import-source.js";
+import { readOrdinary } from "./diagnostics/parsers.js";
 import type { CaseConfig, ClientName, DoctorConfig, LayerResult, RunReport, ServerConfig, TrialResult, Verdict } from "./types.js";
 
 const layer = (verdict: Verdict, reason: string, ...evidence: string[]): LayerResult => ({ verdict, reason, evidence });
@@ -227,15 +229,15 @@ export async function runSuite(config: DoctorConfig, configPath: string, outDir:
   } else {
     const manifestPath = resolve(dirname(configPath), config.manifestPath);
     try {
-      const raw = readFileSync(manifestPath, "utf8");
-      const manifest = JSON.parse(raw) as Record<string, unknown>;
-      const serverEntries = manifest.mcpServers ?? manifest.servers;
+      const raw = readOrdinary(manifestPath);
+      const manifest = parseImportDocument(manifestPath, raw);
+      const serverEntries = manifest.mcpServers ?? manifest.servers ?? manifest.mcp_servers;
       const isMcpConfig = serverEntries !== undefined;
       if (isMcpConfig) {
         if (!serverEntries || typeof serverEntries !== "object" || Array.isArray(serverEntries) || !Object.keys(serverEntries).length) throw new Error("MCP config needs a nonempty server map");
         const validStdio = Object.values(serverEntries).some(value => {
           const entry = object(value);
-          return typeof entry.command === "string" && Array.isArray(entry.args) && entry.args.every(arg => typeof arg === "string");
+          return typeof entry.command === "string" && (entry.args === undefined || Array.isArray(entry.args) && entry.args.every(arg => typeof arg === "string"));
         });
         if (!validStdio) throw new Error("MCP config has no valid stdio server entry");
       }
@@ -261,7 +263,7 @@ export async function runSuite(config: DoctorConfig, configPath: string, outDir:
     : !probeResult.call ? layer("UNKNOWN", "SDK 握手和工具发现通过，但未配置受控 tools/call", "probe.json")
     : probeResult.call.isError ? layer("FAIL", `受控工具 ${probeResult.call.tool} 返回错误`, "probe.json")
     : layer("PASS", `SDK 握手、发现 ${probeResult.tools.length} 个工具并调用 ${probeResult.call.tool}`, "probe.json");
-  const report: RunReport = { schemaVersion: 1, createdAt: new Date().toISOString(), configHash, serverHash: resolvedServerHash, toolSurfaceHash: probeResult.toolSurfaceHash, manifestHash, pluginVersion, serverVersion: probeResult.serverVersion, protocolVersion: null, trials: [], notes: ["E4 为完整插件/UI 人工验收，CLI 运行不会自动判通过。", "报告只代表本次客户端、模型、环境和用例；不代表通用兼容性。", "模型费用仅在客户端输出明确提供时记录；未知不表示零费用。"] };
+  const report: RunReport = { schemaVersion: 1, runEvidenceHashes: captureRunEvidence(outDir), createdAt: new Date().toISOString(), configHash, serverHash: resolvedServerHash, toolSurfaceHash: probeResult.toolSurfaceHash, manifestHash, pluginVersion, serverVersion: probeResult.serverVersion, protocolVersion: null, trials: [], notes: ["E4 为完整插件/UI 人工验收，CLI 运行不会自动判通过。", "报告只代表本次客户端、模型、环境和用例；不代表通用兼容性。", "模型费用仅在客户端输出明确提供时记录；未知不表示零费用。"] };
   const proxyPath = fileURLToPath(new URL("./stdio-proxy.js", import.meta.url));
   const isFixture = server.args.some(x => /release-server(?:-schema-v2)?\.js$/.test(x));
   for (const client of selectedClients ?? config.clients) {

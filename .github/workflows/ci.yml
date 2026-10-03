@@ -1,0 +1,55 @@
+name: Windows verification
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: node --version
+      - run: npm run build
+      - run: npm test
+      - run: npm run package:source
+      - name: Unpack the delivered source with Windows
+        shell: pwsh
+        run: |
+          [void][Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem')
+          [IO.Compression.ZipFile]::ExtractToDirectory('releases/ai-plugin-doctor-source-0.1.0.zip', 'runs/source-package-ci')
+      - name: Install delivered dependencies
+        working-directory: runs/source-package-ci/ai-plugin-doctor
+        run: npm ci --ignore-scripts
+      - name: Build delivered source
+        working-directory: runs/source-package-ci/ai-plugin-doctor
+        run: npm run build
+      - name: Verify delivered source integrity
+        working-directory: runs/source-package-ci/ai-plugin-doctor
+        run: npm run verify:source
+      - name: Test delivered source
+        working-directory: runs/source-package-ci/ai-plugin-doctor
+        run: npm test
+      - name: Verify CLI help
+        working-directory: runs/source-package-ci/ai-plugin-doctor
+        run: node dist/src/cli.js help
+      - name: Verify configuration generation
+        working-directory: runs/source-package-ci/ai-plugin-doctor
+        run: node dist/src/cli.js init doctor.yaml
+      - name: Verify report regeneration and tamper rejection
+        working-directory: runs/source-package-ci/ai-plugin-doctor
+        run: node scripts/verify-report-integrity.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-source-package
+          path: |
+            releases/*.zip
+            releases/*.zip.sha256
+          if-no-files-found: error
+          retention-days: 7

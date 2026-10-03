@@ -1,6 +1,12 @@
 node_modules/
 dist/
+releases/
 runs/
 .npm-cache/
+doctor*.yaml
+research/configuration-diagnostics-20261002/synthetic/
+*.doctor-backup-*.bak
+*.doctor.lock
+*.doctor-*.tmp
 *.log
 !research/clean-install-evidence/**/client.stderr.log

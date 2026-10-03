@@ -3,14 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "bin": { "doctor": "./dist/src/cli.js" },
+  "bin": {
+    "doctor": "./dist/src/cli.js"
+  },
   "scripts": {
     "dev": "tsx src/cli.ts",
-    "build": "tsc -p tsconfig.json",
-    "test": "node --test dist/src/*.test.js"
+    "build": "tsc -p tsconfig.json && node scripts/build-native.mjs",
+    "test": "node --test dist/src/*.test.js dist/src/diagnostics/*.test.js",
+    "package:source": "node dist/src/source-package.js",
+    "verify:source": "node dist/src/source-package.js --verify"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.1",
+    "jsonc-parser": "3.3.1",
+    "smol-toml": "1.9.0",
     "zod": "^3.25.0"
   },
   "devDependencies": {

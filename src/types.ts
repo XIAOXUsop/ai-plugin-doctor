@@ -64,6 +64,7 @@ export interface TrialResult {
 }
 export interface RunReport {
   schemaVersion: 1;
+  runEvidenceHashes?: Record<string, string>;
   createdAt: string;
   configHash: string;
   serverHash: string;

@@ -1,5 +1,5 @@
 import { appendFileSync, readFileSync } from "node:fs";
-import { spawn } from "node:child_process";
+import { installInterruptCleanup, spawnManaged } from "./diagnostics/execution.js";
 import { redact } from "./redact.js";
 import type { ServerConfig } from "./types.js";
 import { expandEnvReferences } from "./config.js";
@@ -8,11 +8,12 @@ interface ProxySpec { server: ServerConfig; logPath: string; runId: string; fixt
 const specPath = process.argv[2];
 if (!specPath) throw new Error("Missing proxy spec path");
 const spec = JSON.parse(readFileSync(specPath, "utf8")) as ProxySpec;
-const child = spawn(spec.server.command, spec.server.args, {
-  cwd: spec.server.cwd,
+installInterruptCleanup();
+const child = spawnManaged(spec.server.command, spec.server.args, {
+  cwd: spec.server.cwd ?? process.cwd(),
   env: { ...process.env, ...expandEnvReferences(spec.server.env), DOCTOR_RUN_ID: spec.runId, DOCTOR_FIXTURE_LOG: spec.fixtureLogPath },
-  stdio: ["pipe", "pipe", "pipe"], windowsHide: true,
 });
+child.stdin.on("error", () => {});
 function log(direction: string, line: string): void {
   try {
     const parsed = JSON.parse(line) as Record<string, unknown>;
@@ -41,4 +42,3 @@ child.stdout.on("data", (chunk: Buffer) => { tapServer(chunk); process.stdout.wr
 child.stderr.on("data", (chunk: Buffer) => process.stderr.write(chunk));
 child.on("error", error => { console.error(error.message); process.exitCode = 1; });
 child.on("exit", (code, signal) => { process.exitCode = code ?? (signal ? 1 : 0); });
-process.on("SIGTERM", () => child.kill("SIGTERM"));

@@ -1,0 +1,20 @@
+import { mkdirSync, existsSync, writeFileSync } from 'node:fs';
+import { resolve, join } from 'node:path';
+import { captureRunEvidence, evidenceHash, writeReport } from '../dist/src/report.js';
+const out=resolve(process.argv[2]??'runs/report-overview-example-20261002');
+if(existsSync(out))throw new Error('Choose a new example directory.');
+mkdirSync(out,{recursive:true});
+for(const file of ['static.json','probe.json','config.snapshot.json'])writeFileSync(join(out,file),JSON.stringify({synthetic:true,description:'界面验收样例，不代表真实客户端结果'}));
+writeFileSync(join(out,'manual-review.md'),'# 合成界面样例\n未完成人工体验验收。\n');
+const specs=[['codex','direct','PASS'],['codex','direct','PASS'],['claude','direct','FAIL'],['claude','indirect','UNKNOWN'],['codex','negative','SKIP']];
+const trials=specs.map(([client,caseId,status],index)=>{
+  const id=`${client}-${caseId}-${index+1}`;
+  const layers=Object.fromEntries(['E0','E1','E2','E3','E4'].map(layer=>[layer,{verdict:layer==='E4'?'SKIP':layer==='E2'?status:'PASS',reason:layer==='E4'?'尚未人工验收':layer==='E2'&&status==='FAIL'?'未在原生客户端发现目标工具':layer==='E2'&&status==='UNKNOWN'?'已有会话状态无法从文件确认':layer==='E2'&&status==='SKIP'?'前置条件未满足，尚未检查':'合成样例通过',evidence:[]}]));
+  const file=`${id}/events.jsonl`;
+  mkdirSync(join(out,id));
+  writeFileSync(join(out,file),'{"synthetic":true}\n');
+  return {id,client,caseId,layers,clientVersion:'合成版本',modelId:'合成模型',startedAt:'2026-10-02',endedAt:'2026-10-02',exitCode:status==='FAIL'?1:0,calls:status==='PASS'?[{name:'lookup_release',arguments:{}}]:[],finalAnswer:'界面样例',files:{events:file},evidenceHashes:{events:evidenceHash(join(out,file))},errorCode:status==='FAIL'?'TOOL_DISCOVERY':null,fixHint:status==='FAIL'?'在原客户端重新加载配置并检查服务状态。':null};
+});
+const report={schemaVersion:1,createdAt:'2026-10-02 · 合成界面样例',runEvidenceHashes:captureRunEvidence(out),configHash:'synthetic',serverHash:'synthetic',protocolVersion:null,trials,notes:['此报告仅用于界面交互验收；运行、版本和状态均为合成数据，不计入原生验收通过率。']};
+writeReport(out,report);
+console.log(join(out,'report.html'));

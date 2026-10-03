@@ -10,6 +10,9 @@ import { compareReports, hasRegression, loadReport, verifyEvidence, writeReport 
 import { runSuite } from "./runner.js";
 import { isExpectedAuthReply } from "./auth.js";
 import type { ClientName, DoctorConfig } from "./types.js";
+import { configurationCli, configurationCommands } from "./diagnostics/cli.js";
+import { installInterruptCleanup } from "./diagnostics/execution.js";
+import { inspectImportSource } from "./import-source.js";
 
 const [command, ...args] = process.argv.slice(2);
 function option(name: string): string | undefined {
@@ -23,12 +26,26 @@ function positionals(): string[] { return args.filter((x, i) => !x.startsWith("-
 function help(): void {
   console.log(`AI Plugin Doctor 0.1.0
 Usage:
-  doctor init [source-directory-or-mcp-config] [doctor.yaml] [--server name] [--proxy-url http://127.0.0.1:port] [--codex-model id] [--claude-model id]
+  doctor init [source-directory-or-mcp-config] [doctor.yaml] [--server name | --entry bin-name] [--cwd directory] [--proxy-url http://127.0.0.1:port] [--codex-model id] [--claude-model id]
+  doctor init <source-directory-or-mcp-config> --list
   doctor preflight [doctor.yaml] [--live-auth]
   doctor run [doctor.yaml] [--client codex|claude|all] [--case id] [--out directory]
   doctor report <run-directory>
   doctor compare <before/report.json> <after/report.json>
+  doctor scan --workspace directory [--clients codex,claude,cursor,vscode] [--out new-directory]
+  doctor diagnose <scan.json> [--service id]
+  doctor map <scan.json> --services id,id
+  doctor network-check <scan.json> --client client --out new-file.json
+  doctor check <scan.json> --service id [--native] --out new-file.json
+  doctor plan <scan.json> --finding id[,id] [--value path-or-type] --out plan.json
+  doctor apply <plan.json> --dry-run
+  doctor apply <plan.json> --out operation.json
+  doctor verify <operation.json> --out new-directory
+  doctor restore <operation.json> --out recovery.json
+  doctor share <scan.json> --out share.json
+  doctor import-evidence <scan.json> <native-record.json> --out evidence.json
 
+Scan context: --versions client=x.y.z,... --surfaces client=surface,...
 doctor.yaml uses JSON syntax, which is a valid YAML 1.2 subset. Build before running the example.`);
 }
 async function checkClaudeAuth(script: string | null, config: DoctorConfig): Promise<"verified" | "failed" | "unknown"> {
@@ -62,14 +79,31 @@ async function checkClaudeAuth(script: string | null, config: DoctorConfig): Pro
 }
 async function main(): Promise<void> {
   if (!command || command === "help" || command === "--help") { help(); return; }
+  if (configurationCommands.includes(command)) { await configurationCli(command, args); return; }
   const positional = positionals();
   if (command === "init") {
-    if (positional.length > 2) throw new Error("init accepts at most a source and output path");
-    const source = positional[0] ? resolve(positional[0]) : undefined;
-    if (positional.length === 2 && (!source || !existsSync(source))) throw new Error(`Source not found: ${source}`);
+    const initPositionals: string[] = [], initOptions = new Map<string,string>();
+    let list = false;
+    for (let index=0;index<args.length;index++) {
+      const arg=args[index]!;
+      if(arg==="--list"){if(list)throw new Error("--list 重复");list=true;continue;}
+      if(arg.startsWith("--")) {
+        if(!["--server","--entry","--cwd","--proxy-url","--codex-model","--claude-model"].includes(arg))throw new Error("init 包含未知选项；请查看 help");
+        if(initOptions.has(arg))throw new Error(`${arg} 重复`);
+        const value=args[++index];if(!value||value.startsWith("--"))throw new Error(`${arg} requires a value`);initOptions.set(arg,value);
+      } else initPositionals.push(arg);
+    }
+    if(list){
+      if(initPositionals.length!==1||initOptions.size)throw new Error("--list 只接受一个来源路径，不创建输出；请在列出后单独执行导入");
+      const inspected=inspectImportSource(initPositionals[0]!);
+      console.log(JSON.stringify({source:inspected.file,kind:inspected.kind,entries:inspected.entries,nextStep:inspected.kind==="mcp"?"使用 --server 选择服务；必要时用 --cwd 指定原客户端目录。":"使用 --entry 选择本地 bin/main 入口。",startedServices:false},null,2));return;
+    }
+    if (initPositionals.length > 2) throw new Error("init accepts at most a source and output path");
+    const source = initPositionals[0] ? resolve(initPositionals[0]) : undefined;
+    if ((initPositionals.length === 2 || initOptions.has("--server") || initOptions.has("--entry") || initOptions.has("--cwd")) && (!source || !existsSync(source))) throw new Error(`Source not found: ${source}`);
     const fromSource = source && existsSync(source);
-    const path = resolve(fromSource ? positional[1] ?? "doctor.yaml" : positional[0] ?? "doctor.yaml");
-    if (fromSource) createFromSource(source, path, option("--server"), option("--proxy-url"), option("--codex-model"), option("--claude-model")); else createExample(path, option("--proxy-url"), option("--codex-model"), option("--claude-model"));
+    const path = resolve(fromSource ? initPositionals[1] ?? "doctor.yaml" : initPositionals[0] ?? "doctor.yaml");
+    if (fromSource) console.log(JSON.stringify(createFromSource(source, path, initOptions.get("--server"), initOptions.get("--proxy-url"), initOptions.get("--codex-model"), initOptions.get("--claude-model"), {cwd:initOptions.get("--cwd"),entry:initOptions.get("--entry")}),null,2)); else createExample(path, initOptions.get("--proxy-url"), initOptions.get("--codex-model"), initOptions.get("--claude-model"));
     console.log(`Created ${path}`); return;
   }
   if (command === "preflight") {
@@ -135,4 +169,5 @@ async function main(): Promise<void> {
   }
   throw new Error(`Unknown command: ${command}`);
 }
+installInterruptCleanup();
 main().catch(error => { console.error(error instanceof Error ? error.message : String(error)); process.exitCode = 1; });

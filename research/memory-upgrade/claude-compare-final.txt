@@ -1,8 +1,0 @@
-before=2026-09-27T15:47:02.735Z
-after=2026-09-28T03:25:23.976Z
-server_changed=true
-tool_surface_changed=false
-claude/direct/1: PASS -> PASS (client/model changed; attribution uncertain)
-claude/indirect/1: PASS -> PASS (client/model changed; attribution uncertain)
-claude/negative/1: PASS -> PASS (client/model changed; attribution uncertain)
-claude/guard/1: PASS -> PASS (client/model changed; attribution uncertain)

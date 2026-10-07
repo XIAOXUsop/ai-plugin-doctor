@@ -3,7 +3,7 @@ import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, writeFileS
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-const fixedFiles = ["package.json", "package-lock.json", "tsconfig.json", "README.md", "DELIVERY.md", ".gitignore", ".gitattributes", ".github/workflows/ci.yml",
+const fixedFiles = ["package.json", "package-lock.json", "tsconfig.json", "README.md", ".gitignore", ".gitattributes", ".github/workflows/ci.yml",
   "scripts/build-native.mjs", "scripts/create-report-overview-example.mjs", "scripts/preview-report.mjs", "scripts/verify-report-integrity.mjs",
   "fixtures/manifest.json", "fixtures/manifest-schema-v2.json", "native/JobRunner.cs", "native/ConsoleInterruptTest.cs", "native/SafeFile.cs", "templates/manual-review.md",
   "docs/配置诊断使用指南.md", "docs/服务导入与路径选择指南.md"];

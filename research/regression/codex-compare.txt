@@ -1,5 +1,0 @@
-before=2026-09-27T15:41:02.588Z
-after=2026-09-27T15:41:51.263Z
-server_changed=true
-tool_surface_changed=true
-codex/direct/1: PASS -> FAIL

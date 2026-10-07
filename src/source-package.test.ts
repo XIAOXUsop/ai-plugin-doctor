@@ -15,7 +15,7 @@ function fixture(t: TestContext) {
 test("source archive is byte-repeatable despite timestamps and excludes local data",t=>{
   const f=fixture(t),first=buildSourceArchive(f.source);
   const canary="synthetic-private-"+randomUUID();
-  for(const file of [".env","doctor.yaml",".doctor/service-map.json","runs/private.json","research/private.ts","node_modules/private.ts","src/node_modules/private.ts","src/.doctor/private.ts","native/private.exe"]){const path=join(f.source,file);mkdirSync(dirname(path),{recursive:true});writeFileSync(path,canary);}
+  for(const file of [".env","doctor.yaml",".doctor/service-map.json","runs/private.json","research/private.ts","DELIVERY.md","IMPLEMENTATION_STATUS.md","POLISH_AUDIT.md","docs/配置诊断实施记录-2026-10-02.md","node_modules/private.ts","src/node_modules/private.ts","src/.doctor/private.ts","native/private.exe"]){const path=join(f.source,file);mkdirSync(dirname(path),{recursive:true});writeFileSync(path,canary);}
   utimesSync(join(f.source,"README.md"),new Date(),new Date());
   const second=buildSourceArchive(f.source);assert.deepEqual(second.bytes,first.bytes);
   assert.equal(second.bytes.includes(Buffer.from(canary)),false);
